@@ -4,6 +4,10 @@ from fabric.api import task, run, sudo, put
 import os
 
 @task
+def apache_configtest():
+    sudo('/sbin/service httpd configtest', shell=False)
+
+@task
 def apt_check_updates():
     sudo('apt-get update')
     sudo('apt-get upgrade -n')
@@ -13,15 +17,13 @@ def check_updates():
     sudo('if [ -e /usr/bin/yum ]; then /usr/bin/yum check-update; fi')
     sudo('if [ -e /usr/bin/apt-get ]; then /usr/bin/apt-get update 2&>1 /dev/null; /usr/bin/apt-get upgrade -s; fi')
 
-@task(alias='free')
-def memory():
-    """Show memory information"""
-    run('free -m')
+@task
+def groups():
+    run('groups')
 
 @task
-def os_version():
-    run('if [ -f /etc/issue ]; then cat /etc/issue; fi')
-    run('if [ -f /etc/release ]; then cat /etc/release; fi')
+def iptables_list():
+    sudo("/sbin/iptables --list --line-numbers")
 
 @task
 def last():
@@ -34,12 +36,15 @@ def ls(directory = None):
         directory = "."
     run("ls -Hal %s" % directory)
 
+@task(alias='free')
+def memory():
+    """Show memory information"""
+    run('free -m')
+
 @task
-def sls(directory = None):
-    "Same as ls, but using sudo"
-    if not directory:
-        directory = "."
-    sudo("ls -Hal %s" % directory)
+def os_version():
+    run('if [ -f /etc/issue ]; then cat /etc/issue; fi')
+    run('if [ -f /etc/release ]; then cat /etc/release; fi')
 
 @task
 def passwd(user):
@@ -65,12 +70,37 @@ def pwd():
 @task
 def restart_apache():
     """Restart apache"""
-    sudo('/sbin/service httpd restart')
+    sudo('/sbin/service httpd restart', shell=False)
 
 @task
 def restart_mysql():
     """Restart mysql"""
-    sudo('/sbin/service mysql restart')
+    sudo('/sbin/service mysql restart', shell=False)
+
+@task
+def sls(directory = None):
+    "Same as ls, but using sudo"
+    if not directory:
+        directory = "."
+    sudo("ls -Hal %s" % directory)
+
+@task
+def ssh_fingerprint():
+    run('ssh-keygen -lf /etc/ssh/ssh_host_rsa_key.pub')
+
+@task
+def ssh_setup(keyfile=None):
+    run('if [ ! -d .ssh ]; then mkdir .ssh && chown `whoami` .ssh && chmod 700 .ssh; fi')
+    if keyfile and os.path.exists(keyfile):
+        put(keyfile, '.ssh/')
+        filename = os.path.split(keyfile)
+        if filename[1] != 'authorized_keys':
+            run('if [ -f .ssh/authorized_keys ]; then mv .ssh/authorized_keys .ssh/authorized_keys.old; fi')
+            run('mv ".ssh/%s" .ssh/authorized_keys' % filename[1])
+    else:
+        print "Keyfile does not exist: %s" % keyfile
+    run('chmod 700 .ssh')
+    run('chmod 600 .ssh/authorized_keys')
 
 @task
 def uptime():
@@ -94,19 +124,6 @@ def yum_install(package):
     sudo('yum install %s' % package)
 
 @task
-def ssh_fingerprint():
-    run('ssh-keygen -lf /etc/ssh/ssh_host_rsa_key.pub')
+def yum_update(package):
+    sudo('yum update %s' % package)
 
-@task
-def ssh_setup(keyfile=None):
-    run('if [ ! -d .ssh ]; then mkdir .ssh && chown `whoami` .ssh && chmod 700 .ssh; fi')
-    if keyfile and os.path.exists(keyfile):
-        put(keyfile, '.ssh/')
-        filename = os.path.split(keyfile)
-        if filename[1] != 'authorized_keys':
-            run('if [ -f .ssh/authorized_keys ]; then mv .ssh/authorized_keys .ssh/authorized_keys.old; fi')
-            run('mv ".ssh/%s" .ssh/authorized_keys' % filename[1])
-    else:
-        print "Keyfile does not exist: %s" % keyfile
-    run('chmod 700 .ssh')
-    run('chmod 600 .ssh/authorized_keys')
