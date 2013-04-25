@@ -24,7 +24,7 @@ def local_dump(db, user='root', password=True):
     local(cmd)
 
 @task
-def tables(database, user='root', password=True):
+def local_tables(database, user='root', password=True):
     """Show a list of databases"""
     cmd = "mysql -u %s " % user
     if password == True:

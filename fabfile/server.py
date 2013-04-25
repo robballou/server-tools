@@ -18,6 +18,10 @@ def check_updates():
     sudo('if [ -e /usr/bin/apt-get ]; then /usr/bin/apt-get update 2&>1 /dev/null; /usr/bin/apt-get upgrade -s; fi')
 
 @task
+def disk_usage():
+    run('df -h')
+
+@task
 def groups():
     run('groups')
 
@@ -61,6 +65,10 @@ def processes(search=None):
         sudo('ps -ef')
     else:
         sudo('ps -ef | grep %s' % search)
+
+@task
+def restart_puppet():
+    sudo('/sbin/service puppet restart', shell=False)
 
 @task
 def pwd():
@@ -124,6 +132,8 @@ def yum_install(package):
     sudo('yum install %s' % package)
 
 @task
-def yum_update(package):
-    sudo('yum update %s' % package)
-
+def yum_update(package = None):
+    if package:
+        sudo('yum update %s' % package)
+    else:
+        sudo('yum update')
