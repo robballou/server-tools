@@ -13,6 +13,13 @@ def dump(db, user='root'):
     filename = "%s%s.sql" % (db, datetime.datetime.now().strftime("%Y%m%d%H%M"))
     run('mysqldump -u %(user)s -p %(db)s > %(filename)s' % {'user': user, 'db': db, 'filename': filename})
 
+@task(alias="local_dbs")
+def local_databases(user='root', password=True):
+    cmd = "mysql -u %s" % user
+    if password == True:
+        cmd = "%s -p" % cmd
+    local('echo "show databases;" | %s' % cmd)
+
 @task
 def local_dump(db, user='root', password=True):
     """Backup local database"""

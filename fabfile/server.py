@@ -8,6 +8,10 @@ def apache_configtest():
     sudo('/sbin/service httpd configtest', shell=False)
 
 @task
+def apache_modules():
+    run('/usr/sbin/apachectl -t -D DUMP_MODULES')
+
+@task
 def apt_check_updates():
     sudo('apt-get update')
     sudo('apt-get upgrade -n')
@@ -66,6 +70,16 @@ def processes(search=None):
     else:
         sudo('ps -ef | grep %s' % search)
 
+@task(alias="puppet_install")
+def puppet_module_install(module):
+    """Install a puppet module"""
+    sudo('puppet module install %s' % module)
+
+@task
+def puppet_modules():
+    """List modules"""
+    sudo('puppet module list')
+
 @task
 def restart_puppet():
     sudo('/sbin/service puppet restart', shell=False)
@@ -109,6 +123,13 @@ def ssh_setup(keyfile=None):
         print "Keyfile does not exist: %s" % keyfile
     run('chmod 700 .ssh')
     run('chmod 600 .ssh/authorized_keys')
+
+@task
+def tail_puppet_log(n=None):
+    if not n:
+        sudo('tail -f /var/log/puppet/puppet.log')
+    else:
+        sudo('tail -n %s /var/log/puppet/puppet.log' % n)
 
 @task
 def uptime():

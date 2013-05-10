@@ -20,10 +20,18 @@ def checkout(branch):
         run('git checkout %s' % branch)
 
 @task
-def clean(path="."):
+def checkout_clean(path="."):
     with cd(env.hosts_path):
         run('git checkout -- %s' % path)
     execute('git.status')
+
+@task
+def clean(test=True):
+    with cd(env.hosts_path):
+        if test == True:
+            run('git clean -fdn .')
+        else:
+            run('git clean -fd .')
 
 @task(alias='cpl')
 def clean_pull():
