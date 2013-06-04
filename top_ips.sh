@@ -7,4 +7,13 @@ then
     exit 1
 fi
 
-awk '{ print $1}' /home/$1/var/$1.org/logs/transfer.log | sort  | uniq -c  | sort -nr | grep -v "^[[:space:]]*[[:digit:]][[:space:]]"
+export TLD="org"
+if [[ -f /home/$1/var/$1.org/logs/transfer.log ]]; then
+	$TLD="org"
+elif [[ -f /home/$1/var/$1.com/logs/transfer.log ]]; then
+	$TLD="com"
+elif [[ -f /home/$1/var/$1.net/logs/transfer.log ]]; then
+	$TLD="net"
+fi
+
+awk '{ print $1}' /home/$1/var/$1.$TLD/logs/transfer.log | sort  | uniq -c  | sort -nr | grep -v "^[[:space:]]*[[:digit:]][[:space:]]"
