@@ -25,7 +25,7 @@ fi
 
 echo "/home/$USERNAME/var/$DOMAIN.$TLD/logs/transfer.log"
 
-if [[ $TLD -ne "UNKNOWN" ]]; then
+if [[ $TLD != "UNKNOWN" ]]; then
 	awk '{ print $1}' /home/$USERNAME/var/$DOMAIN.$TLD/logs/transfer.log | sort  | uniq -c  | sort -nr | grep -v "^[[:space:]]*[[:digit:]][[:space:]]"
 else
 	echo "Could not find log"
