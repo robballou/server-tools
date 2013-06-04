@@ -11,16 +11,16 @@ export DOMAIN=$1
 export USERNAME=$1
 
 if [[ -n "$2" ]]; then
-	$USERNAME=$2
+	export USERNAME=$2
 fi
 
 export TLD="UNKNOWN"
 if [[ -f /home/$USERNAME/var/$DOMAIN.org/logs/transfer.log ]]; then
-	$TLD="org"
+	export TLD="org"
 elif [[ -f /home/$USERNAME/var/$DOMAIN.com/logs/transfer.log ]]; then
-	$TLD="com"
+	export TLD="com"
 elif [[ -f /home/$USERNAME/var/$DOMAIN.net/logs/transfer.log ]]; then
-	$TLD="net"
+	export TLD="net"
 fi
 
 if [[ $TLD -ne "UNKNOWN" ]]; then
