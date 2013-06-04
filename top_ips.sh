@@ -19,5 +19,5 @@ fi
 if [[ $TLD -ne "UNKNOWN" ]]; then
 	awk '{ print $1}' /home/$1/var/$1.$TLD/logs/transfer.log | sort  | uniq -c  | sort -nr | grep -v "^[[:space:]]*[[:digit:]][[:space:]]"
 else
-	print "Could not find log"
+	echo "Could not find log"
 fi
